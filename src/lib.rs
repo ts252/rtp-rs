@@ -149,7 +149,9 @@ impl<'a> RtpReader<'a> {
 
     fn payload_offset(&self) -> usize {
         let offset = Self::MIN_HEADER_LEN + (4 * self.csrc_count()) as usize;
-        if self.extension() {
+        if offset >= self.buf.len() - 3 {
+            std::u16::MAX as usize
+        } else if self.extension() {
             let len = (self.buf[offset + 2] as usize) << 8 | (self.buf[offset + 3] as usize);
             offset + 4 + len
         } else {
